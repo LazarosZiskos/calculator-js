@@ -1,3 +1,4 @@
+// Simple calculator functions
 function add(a, b) {
   return a + b;
 }
@@ -12,26 +13,28 @@ function multiply(a, b) {
 
 function divide(a, b) {
   if (b === 0) {
-    return "Nice try! Can't divide by zero.";
+    return "error-div-zero";
   } else {
     return a / b;
   }
 }
 
 function operate(op, num1, num2) {
-  num1 = parseFloat(num1);
-  num2 = parseFloat(num2);
+  let a = parseFloat(num1);
+  let b = parseFloat(num2);
+
+  if (isNaN(a) || isNaN(b)) return 0;
 
   if (op === "+") {
-    return add(num1, num2);
+    return add(a, b);
   } else if (op === "-") {
-    return subtract(num1, num2);
+    return subtract(a, b);
   } else if (op === "*") {
-    return multiply(num1, num2);
+    return multiply(a, b);
   } else if (op === "/") {
-    return divide(num1, num2);
+    return divide(a, b);
   } else {
-    return num2;
+    return b;
   }
 }
 
@@ -44,7 +47,9 @@ let operator = null;
 let justCalculated = false;
 
 function updateDisplay(val) {
-  if (val.toString().length > 12) {
+  if (val === "error-div-zero") {
+    display.textContent = "You can't divide by zero!";
+  } else if (val.toString().length > 12) {
     display.textContent = parseFloat(val).toFixed(4);
   } else {
     display.textContent = val;
@@ -58,7 +63,7 @@ for (let i = 0; i < buttons.length; i++) {
 }
 
 function handleClick(val) {
-  if (!isNaN(val)) {
+  if (!isNaN(val) && val !== ".") {
     if (justCalculated) {
       current = val;
       justCalculated = false;
@@ -69,18 +74,20 @@ function handleClick(val) {
   } else if (val === "-" && current === "") {
     current = "-";
     updateDisplay(current);
-  } else if (
-    val === "+" ||
-    val === "*" ||
-    val === "/" ||
-    (val === "-" && current !== "")
-  ) {
+  } else if (val === "+" || val === "-" || val === "*" || val === "/") {
     if (current === "" && previous !== "") {
       operator = val;
       updateDisplay(previous + " " + operator);
     } else {
       if (previous !== "" && operator !== null) {
         previous = operate(operator, previous, current);
+        if (previous === "error-div-zero") {
+          updateDisplay(previous);
+          current = "";
+          previous = "";
+          operator = null;
+          return;
+        }
       } else {
         previous = current;
       }
@@ -93,6 +100,13 @@ function handleClick(val) {
       return;
     }
     let result = operate(operator, previous, current);
+    if (result === "error-div-zero") {
+      updateDisplay(result);
+      current = "";
+      previous = "";
+      operator = null;
+      return;
+    }
     updateDisplay(result);
     current = result.toString();
     previous = "";
@@ -104,10 +118,17 @@ function handleClick(val) {
     operator = null;
     updateDisplay("0");
   } else if (val === ".") {
-    if (!current.includes(".")) {
-      current += ".";
-      updateDisplay(current);
+    if (justCalculated) {
+      current = "0.";
+      justCalculated = false;
+    } else if (!current.includes(".")) {
+      if (current === "") {
+        current = "0.";
+      } else {
+        current += ".";
+      }
     }
+    updateDisplay(current);
   } else if (val === "⌫") {
     current = current.slice(0, -1);
     if (current === "") {
