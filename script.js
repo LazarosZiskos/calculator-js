@@ -66,7 +66,15 @@ function handleClick(val) {
       current += val;
     }
     updateDisplay(current);
-  } else if (val === "+" || val === "-" || val === "*" || val === "/") {
+  } else if (val === "-" && current === "") {
+    current = "-";
+    updateDisplay(current);
+  } else if (
+    val === "+" ||
+    val === "*" ||
+    val === "/" ||
+    (val === "-" && current !== "")
+  ) {
     if (current === "" && previous !== "") {
       operator = val;
       updateDisplay(previous + " " + operator);
