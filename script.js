@@ -1,4 +1,3 @@
-// Simple calculator functions
 function add(a, b) {
   return a + b;
 }
