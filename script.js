@@ -1,22 +1,23 @@
 function add(a, b) {
   return a + b;
 }
-
 function subtract(a, b) {
   return a - b;
 }
-
 function multiply(a, b) {
   return a * b;
 }
-
 function divide(a, b) {
-  if (b === 0) {
-    return "error-div-zero";
-  } else {
-    return a / b;
-  }
+  return b === 0 ? "error-div-zero" : a / b;
 }
+
+/* ✅ ADD THIS MAP */
+const OPS = {
+  "+": add,
+  "-": subtract,
+  "*": multiply,
+  "/": divide,
+};
 
 function operate(op, num1, num2) {
   const a = parseFloat(num1);
@@ -37,14 +38,13 @@ let operator = null;
 let justCalculated = false;
 
 const isDigit = (v) => /^[0-9]$/.test(v);
+/* uses OPS safely now that it's defined */
 const isOperator = (v) => v in OPS;
 
 function formatResult(val) {
   if (val === "error-div-zero") return "You can't divide by zero!";
   const str = val.toString();
-  if (str.length > 12 && !isNaN(val)) {
-    return parseFloat(val).toFixed(4);
-  }
+  if (str.length > 12 && !isNaN(val)) return parseFloat(val).toFixed(4);
   return str;
 }
 
@@ -76,12 +76,10 @@ function setOperator(nextOp) {
     current = "-";
     return refreshDisplays();
   }
-
   if (previous !== "" && current === "") {
     operator = nextOp;
     return refreshDisplays();
   }
-
   if (previous !== "" && operator && current !== "") {
     const result = operate(operator, previous, current);
     if (result === "error-div-zero") return handleDivideByZero();
@@ -91,7 +89,6 @@ function setOperator(nextOp) {
     previous = current || previous;
     current = "";
   }
-
   operator = nextOp;
   justCalculated = false;
   refreshDisplays();
@@ -120,6 +117,9 @@ function appendDecimal() {
 function compute() {
   if (!operator || previous === "" || current === "") return;
 
+  /* ✅ capture expression BEFORE resetting state */
+  const expr = `${previous} ${operator} ${current} =`;
+
   const result = operate(operator, previous, current);
   if (result === "error-div-zero") return handleDivideByZero();
 
@@ -128,8 +128,8 @@ function compute() {
   operator = null;
   justCalculated = true;
 
-  expressionEl.textContent = buildExpression({ withEquals: true }) || " ";
-  resultEl.textContent = formatResult(current);
+  expressionEl.textContent = expr; // show a op b =
+  resultEl.textContent = formatResult(current); // show result
 }
 
 function handleDivideByZero() {
@@ -142,13 +142,9 @@ function handleDivideByZero() {
 }
 
 function backspace() {
-  if (justCalculated) {
-    justCalculated = false;
-  }
+  if (justCalculated) justCalculated = false;
   current = current.slice(0, -1);
-  if (current === "" || current === "-") {
-    resultEl.textContent = "0";
-  }
+  if (current === "" || current === "-") resultEl.textContent = "0";
   refreshDisplays();
 }
 
@@ -163,9 +159,7 @@ function handleClick(val) {
     "*": () => setOperator("*"),
     "/": () => setOperator("/"),
   };
-
   if (isDigit(val)) return appendDigit(val);
-
   const act = actions[val];
   if (act) return act();
 }
@@ -176,13 +170,8 @@ buttons.forEach((btn) =>
 
 window.addEventListener("keydown", (e) => {
   const k = e.key;
-
   if (k === "Enter") return handleClick("=");
-
   if (k === "Backspace") return handleClick("⌫");
   if (k.toLowerCase() === "c") return handleClick("C");
-
-  if (isDigit(k) || isOperator(k) || k === "." || k === "=") {
-    handleClick(k);
-  }
+  if (isDigit(k) || isOperator(k) || k === "." || k === "=") handleClick(k);
 });
