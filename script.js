@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 const add = (a, b) => a + b;
 const subtract = (a, b) => a - b;
 const multiply = (a, b) => a * b;
 const divide = (a, b) => (b === 0 ? "error-div-zero" : a / b);
+=======
+function add(a, b) {
+  return a + b;
+}
+>>>>>>> 7558f969a235f6ec4371089edf0b7a0083a808c4
 
 const OPS = {
   "+": add,
